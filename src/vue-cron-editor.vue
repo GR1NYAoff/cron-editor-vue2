@@ -267,7 +267,7 @@
                   ])
               "
               v-model="day.cronEvery"
-              label="9"
+              label="8"
             >
               <el-input-number
                 v-model="day.cronDaysBeforeEomMinus"
@@ -288,7 +288,7 @@
                   ])
               "
               v-model="day.cronEvery"
-              label="10"
+              label="9"
             >
               {{ text.Day.nearestWeekday[0] }}
               <el-input-number
@@ -310,7 +310,7 @@
                   ])
               "
               v-model="day.cronEvery"
-              label="11"
+              label="10"
             >
               {{ text.Day.someWeekday[0] }}
               <el-input-number
@@ -612,7 +612,7 @@ export default {
             break;
           case "2":
           case "4":
-          case "11":
+          case "10":
             days = "*";
             break;
           case "3":
@@ -630,10 +630,10 @@ export default {
           case "7":
             days = "LW";
             break;
-          case "9":
+          case "8":
             days = `L-${this.day.cronDaysBeforeEomMinus}`;
             break;
-          case "10":
+          case "9":
             days = `${this.day.cronDaysNearestWeekday}W`;
             break;
         }
@@ -680,17 +680,17 @@ export default {
             this.day.cronEvery = "7";
             return;
           }
-          const case9 = /L-(\d+)/g;
-          let match = case9.exec(value);
+          const case8 = /L-(\d+)/g;
+          let match = case8.exec(value);
           if (match) {
-            this.day.cronEvery = "9";
+            this.day.cronEvery = "8";
             this.day.cronDaysBeforeEomMinus = match[1];
             return;
           }
-          const case10 = /(\d+)W/g;
-          match = case10.exec(value);
+          const case9 = /(\d+)W/g;
+          match = case9.exec(value);
           if (match) {
-            this.day.cronEvery = "10";
+            this.day.cronEvery = "9";
             this.day.cronLastSpecificDomDay = match[1];
           }
         }
@@ -719,10 +719,9 @@ export default {
           case "7":
           case "8":
           case "9":
-          case "10":
             weeks = "*";
             break;
-          case "11":
+          case "10":
             weeks = `${this.week.cronNthDayDay}#${this.week.cronNthDayNth}`;
             break;
         }
@@ -758,7 +757,7 @@ export default {
             const parts = value.split("#");
             this.week.cronNthDayDay = parts[0];
             this.week.cronNthDayNth = parts[1];
-            this.day.cronEvery = "11";
+            this.day.cronEvery = "10";
           }
         }
       },
