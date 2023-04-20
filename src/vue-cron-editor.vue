@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-input v-model="value" v-if="!hideInput" />
     <el-button class="language" type="text" @click="locale=(locale==='en'?'cn':'en')">
       {{ locale }}
     </el-button>
@@ -410,7 +411,7 @@ import locales from "../locales";
 
 export default {
   name: "VueCronEditor",
-  props: ["value", "i18n", "visible", "setDefaultValue"],
+  props: ["value", "i18n", 'hideInput'],
   data() {
     return {
       locale: this.i18n || 'en',

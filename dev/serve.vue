@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <vue-cron-editor value="* * * * * ?" />
+    <vue-cron-editor v-model="cronExpression" />
   </div>
 </template>
 
@@ -12,5 +12,10 @@ export default {
   components: {
     "vue-cron-editor": VueCronEditor,
   },
+  data() {
+    return {
+      cronExpression: "* * * * *",
+    }
+  }
 };
 </script>
