@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <vue-cron-editor value="* * * * * ?" />
+    <el-input v-model="cronExpression" class="cron-input" />
+    <vue-cron-editor v-model="cronExpression" :localesButton="localesButton" />
   </div>
 </template>
 
@@ -12,5 +13,17 @@ export default {
   components: {
     "vue-cron-editor": VueCronEditor,
   },
+  data() {
+    return {
+      cronExpression: "* * * * *",
+      localesButton: true,
+    };
+  },
 };
 </script>
+
+<style scoped>
+.cron-input {
+  margin-bottom: 10px;
+}
+</style>

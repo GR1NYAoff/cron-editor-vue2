@@ -1,74 +1,14 @@
 <template>
   <div>
-    <el-button class="language" type="text" @click="locale=(locale==='en'?'cn':'en')">
+    <el-button
+      class="language"
+      type="text"
+      @click="locale = locale === 'en' ? 'cn' : 'en'"
+      v-if="localesButton"
+    >
       {{ locale }}
     </el-button>
     <el-tabs type="border-card">
-      <el-tab-pane>
-        <span slot="label">
-          <i class="el-icon-date" />
-          {{ text.Seconds.name }}
-        </span>
-        <div class="tabBody">
-          <el-row>
-            <el-radio v-model="second.cronEvery" label="1">
-              {{ text.Seconds.every }}
-            </el-radio>
-          </el-row>
-          <el-row>
-            <el-radio v-model="second.cronEvery" label="2">
-              {{ text.Seconds.interval[0] }}
-              <el-input-number
-                v-model="second.incrementIncrement"
-                size="small"
-                :min="1"
-                :max="60"
-              />
-              {{ text.Seconds.interval[1] || "" }}
-              <el-input-number
-                v-model="second.incrementStart"
-                size="small"
-                :min="0"
-                :max="59"
-              />
-              {{ text.Seconds.interval[2] || "" }}
-            </el-radio>
-          </el-row>
-          <el-row>
-            <el-radio v-model="second.cronEvery" class="long" label="3">
-              {{ text.Seconds.specific }}
-              <el-select
-                v-model="second.specificSpecific"
-                size="small"
-                multiple
-              >
-                <el-option v-for="val in 60" :key="val" :value="val - 1">
-                  {{ val - 1 }}
-                </el-option>
-              </el-select>
-            </el-radio>
-          </el-row>
-          <el-row>
-            <el-radio v-model="second.cronEvery" label="4">
-              {{ text.Seconds.cycle[0] }}
-              <el-input-number
-                v-model="second.rangeStart"
-                size="small"
-                :min="1"
-                :max="60"
-              />
-              {{ text.Seconds.cycle[1] || "" }}
-              <el-input-number
-                v-model="second.rangeEnd"
-                size="small"
-                :min="0"
-                :max="59"
-              />
-              {{ text.Seconds.cycle[2] || "" }}
-            </el-radio>
-          </el-row>
-        </div>
-      </el-tab-pane>
       <el-tab-pane>
         <span slot="label">
           <i class="el-icon-date" />
@@ -87,7 +27,7 @@
                 v-model="minute.incrementIncrement"
                 size="small"
                 :min="1"
-                :max="60"
+                :max="59"
               />
               {{ text.Minutes.interval[1] }}
               <el-input-number
@@ -119,14 +59,14 @@
               <el-input-number
                 v-model="minute.rangeStart"
                 size="small"
-                :min="1"
-                :max="60"
+                :min="0"
+                :max="Number(minute.rangeEnd) - 1"
               />
               {{ text.Minutes.cycle[1] }}
               <el-input-number
                 v-model="minute.rangeEnd"
                 size="small"
-                :min="0"
+                :min="Number(minute.rangeStart) + 1"
                 :max="59"
               />
               {{ text.Minutes.cycle[2] }}
@@ -141,7 +81,14 @@
         </span>
         <div class="tabBody">
           <el-row>
-            <el-radio v-model="hour.cronEvery" label="1">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([additionalActions.AssignZeroMinutes])
+              "
+              v-model="hour.cronEvery"
+              label="1"
+            >
               {{ text.Hours.every }}
             </el-radio>
           </el-row>
@@ -181,13 +128,13 @@
                 v-model="hour.rangeStart"
                 size="small"
                 :min="0"
-                :max="23"
+                :max="Number(hour.rangeEnd) - 1"
               />
               {{ text.Hours.cycle[1] }}
               <el-input-number
                 v-model="hour.rangeEnd"
                 size="small"
-                :min="0"
+                :min="Number(hour.rangeStart) + 1"
                 :max="23"
               />
               {{ text.Hours.cycle[2] }}
@@ -202,7 +149,17 @@
         </span>
         <div class="tabBody">
           <el-row>
-            <el-radio v-model="day.cronEvery" label="1">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="1"
+            >
               {{ text.Day.every }}
             </el-radio>
           </el-row>
@@ -272,31 +229,47 @@
             </el-radio>
           </el-row>
           <el-row>
-            <el-radio v-model="day.cronEvery" label="6">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="6"
+            >
               {{ text.Day.lastDay }}
             </el-radio>
           </el-row>
           <el-row>
-            <el-radio v-model="day.cronEvery" label="7">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="7"
+            >
               {{ text.Day.lastWeekday }}
             </el-radio>
           </el-row>
           <el-row>
-            <el-radio v-model="day.cronEvery" label="8">
-              {{ text.Day.lastWeek[0] }}
-              <el-select v-model="day.cronLastSpecificDomDay" size="small">
-                <el-option
-                  v-for="val in 7"
-                  :key="val"
-                  :label="text.Week[val - 1]"
-                  :value="val"
-                />
-              </el-select>
-              {{ text.Day.lastWeek[1] || "" }}
-            </el-radio>
-          </el-row>
-          <el-row>
-            <el-radio v-model="day.cronEvery" label="9">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="8"
+            >
               <el-input-number
                 v-model="day.cronDaysBeforeEomMinus"
                 size="small"
@@ -307,7 +280,17 @@
             </el-radio>
           </el-row>
           <el-row>
-            <el-radio v-model="day.cronEvery" label="10">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="9"
+            >
               {{ text.Day.nearestWeekday[0] }}
               <el-input-number
                 v-model="day.cronDaysNearestWeekday"
@@ -319,7 +302,17 @@
             </el-radio>
           </el-row>
           <el-row>
-            <el-radio v-model="day.cronEvery" label="11">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                  ])
+              "
+              v-model="day.cronEvery"
+              label="10"
+            >
               {{ text.Day.someWeekday[0] }}
               <el-input-number
                 v-model="week.cronNthDayNth"
@@ -347,7 +340,18 @@
         </span>
         <div class="tabBody">
           <el-row>
-            <el-radio v-model="month.cronEvery" label="1">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.AssignZeroHours,
+                    additionalActions.AssignFirstDayOfMonth,
+                  ])
+              "
+              v-model="month.cronEvery"
+              label="1"
+            >
               {{ text.Month.every }}
             </el-radio>
           </el-row>
@@ -389,13 +393,13 @@
                 v-model="month.rangeStart"
                 size="small"
                 :min="1"
-                :max="12"
+                :max="Number(month.rangeEnd) - 1"
               />
               {{ text.Month.cycle[1] }}
               <el-input-number
                 v-model="month.rangeEnd"
                 size="small"
-                :min="1"
+                :min="Number(month.rangeStart) + 1"
                 :max="12"
               />
             </el-radio>
@@ -408,20 +412,57 @@
 <script>
 import locales from "../locales";
 
+const DEFAULT_CRON_EXPRESSION = "* * * * *";
+
+const ADDITIONAL_ACTIONS = {
+  AssignZeroMinutes: "AssignZeroMinutes",
+  AssignZeroHours: "AssignZeroHours",
+  AssignFirstDayOfMonth: "AssignFirstDayOfMonth",
+};
+
 export default {
   name: "VueCronEditor",
-  props: ["value", "i18n", "visible", "setDefaultValue"],
+  props: {
+    value: {
+      type: String,
+      default: "",
+      require: true,
+    },
+    i18n: {
+      type: String,
+      default: "en",
+      require: false,
+    },
+    localesButton: {
+      type: Boolean,
+      default: false,
+      require: false,
+    },
+  },
   data() {
     return {
-      locale: this.i18n || 'en',
-      second: {
-        cronEvery: "",
-        incrementStart: "3",
-        incrementIncrement: "5",
-        rangeStart: "",
-        rangeEnd: "",
-        specificSpecific: [],
-      },
+      locale: this.i18n,
+      additionalActions: ADDITIONAL_ACTIONS,
+      actionsMap: new Map([
+        [
+          ADDITIONAL_ACTIONS.AssignZeroMinutes,
+          () => {
+            if (this.minutesText === "*") this.minutesText = "0";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.AssignZeroHours,
+          () => {
+            if (this.hoursText === "*") this.hoursText = "0";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.AssignFirstDayOfMonth,
+          () => {
+            if (this.daysText === "*") this.daysText = "1";
+          },
+        ],
+      ]),
       minute: {
         cronEvery: "",
         incrementStart: "3",
@@ -465,79 +506,16 @@ export default {
         rangeEnd: "",
         specificSpecific: [],
       },
-      inner: "",
     };
   },
   computed: {
     text() {
       return locales[this.locale];
     },
-    secondsText: {
-      get() {
-        let seconds = "";
-        const { cronEvery } = this.second;
-        // eslint-disable-next-line default-case
-        switch (cronEvery.toString()) {
-          case "1":
-            seconds = "*";
-            break;
-          case "2":
-            seconds = `${this.second.incrementStart}/${this.second.incrementIncrement}`;
-            break;
-          case "3":
-            this.second.specificSpecific.map((val) => {
-              seconds += `${val},`;
-            });
-            seconds = seconds.slice(0, -1);
-            break;
-          case "4":
-            seconds = `${this.second.rangeStart}-${this.second.rangeEnd}`;
-            break;
-        }
-        return seconds;
-      },
-      set(value) {
-        if (value) {
-          if (value === "*") {
-            this.second.cronEvery = "1";
-            return;
-          }
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.second.incrementStart = parts[0];
-            this.second.incrementIncrement = parts[1];
-            this.second.cronEvery = "2";
-            return;
-          }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.second.rangeStart = parts[0];
-            this.second.rangeEnd = parts[1];
-            this.second.cronEvery = "4";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.second.specificSpecific = [];
-            parts.forEach((el) => {
-              this.second.specificSpecific.push(el);
-            });
-            this.second.cronEvery = "3";
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.second.specificSpecific = [];
-            this.second.specificSpecific.push(value);
-            this.second.cronEvery = "3";
-          }
-        }
-      },
-    },
     minutesText: {
       get() {
         let minutes = "";
         const { cronEvery } = this.minute;
-        // eslint-disable-next-line default-case
         switch (cronEvery.toString()) {
           case "1":
             minutes = "*";
@@ -559,7 +537,7 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
+          if (value === "*" || value === "*/1") {
             this.minute.cronEvery = "1";
             return;
           }
@@ -586,7 +564,7 @@ export default {
             this.minute.cronEvery = "3";
             return;
           }
-          if (parseInt(value, 10)) {
+          if (value === "0" || parseInt(value, 10)) {
             this.minute.specificSpecific = [];
             this.minute.specificSpecific.push(value);
             this.minute.cronEvery = "3";
@@ -598,10 +576,9 @@ export default {
       get() {
         let hours = "";
         const { cronEvery } = this.hour;
-        // eslint-disable-next-line default-case
         switch (cronEvery.toString()) {
           case "1":
-            hours = "*";
+            hours = "*/1";
             break;
           case "2":
             hours = `${this.hour.incrementStart}/${this.hour.incrementIncrement}`;
@@ -620,7 +597,9 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
+          if (value === "*") return;
+
+          if (value === "*/1") {
             this.hour.cronEvery = "1";
             return;
           }
@@ -647,7 +626,7 @@ export default {
             this.hour.cronEvery = "3";
             return;
           }
-          if (parseInt(value, 10)) {
+          if (value === "0" || parseInt(value, 10)) {
             this.hour.specificSpecific = [];
             this.hour.specificSpecific.push(value);
             this.hour.cronEvery = "3";
@@ -659,14 +638,14 @@ export default {
       get() {
         let days = "";
         const { cronEvery } = this.day;
-        // eslint-disable-next-line default-case
         switch (cronEvery.toString()) {
           case "1":
+            days = "*/1";
             break;
           case "2":
           case "4":
-          case "11":
-            days = "?";
+          case "10":
+            days = "*";
             break;
           case "3":
             days = `${this.day.incrementStart}/${this.day.incrementIncrement}`;
@@ -684,12 +663,9 @@ export default {
             days = "LW";
             break;
           case "8":
-            days = `${this.day.cronLastSpecificDomDay}L`;
-            break;
-          case "9":
             days = `L-${this.day.cronDaysBeforeEomMinus}`;
             break;
-          case "10":
+          case "9":
             days = `${this.day.cronDaysNearestWeekday}W`;
             break;
         }
@@ -697,13 +673,8 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
-            this.day.cronEvery = 1;
-            return;
-          }
-          if (value === "?") {
-            return;
-          }
+          if (value === "*") return;
+
           if (value.includes("/")) {
             const parts = value.split("/");
             this.day.incrementStart = parts[0];
@@ -741,24 +712,17 @@ export default {
             this.day.cronEvery = "7";
             return;
           }
-          const case8 = /(\d+)L/g;
+          const case8 = /L-(\d+)/g;
           let match = case8.exec(value);
           if (match) {
             this.day.cronEvery = "8";
-            this.day.cronLastSpecificDomDay = match[1];
-            return;
-          }
-          const case9 = /L-(\d+)/g;
-          match = case9.exec(value);
-          if (match) {
-            this.day.cronEvery = "9";
             this.day.cronDaysBeforeEomMinus = match[1];
             return;
           }
-          const case10 = /(\d+)W/g;
-          match = case10.exec(value);
+          const case9 = /(\d+)W/g;
+          match = case9.exec(value);
           if (match) {
-            this.day.cronEvery = "10";
+            this.day.cronEvery = "9";
             this.day.cronLastSpecificDomDay = match[1];
           }
         }
@@ -768,12 +732,11 @@ export default {
       get() {
         let weeks = "";
         const { cronEvery } = this.day;
-        // eslint-disable-next-line default-case
         switch (cronEvery.toString()) {
           case "1":
           case "3":
           case "5":
-            weeks = "?";
+            weeks = "*";
             break;
           case "2":
             weeks = `${this.week.incrementStart}/${this.week.incrementIncrement}`;
@@ -788,10 +751,9 @@ export default {
           case "7":
           case "8":
           case "9":
-          case "10":
-            weeks = "?";
+            weeks = "*";
             break;
-          case "11":
+          case "10":
             weeks = `${this.week.cronNthDayDay}#${this.week.cronNthDayNth}`;
             break;
         }
@@ -799,9 +761,8 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "?" || value === "*") {
-            return;
-          }
+          if (value === "*") return;
+
           if (value.includes("/")) {
             const parts = value.split("/");
             this.week.incrementStart = parts[0];
@@ -828,7 +789,7 @@ export default {
             const parts = value.split("#");
             this.week.cronNthDayDay = parts[0];
             this.week.cronNthDayNth = parts[1];
-            this.day.cronEvery = "11";
+            this.day.cronEvery = "10";
           }
         }
       },
@@ -837,10 +798,9 @@ export default {
       get() {
         let months = "";
         const { cronEvery } = this.month;
-        // eslint-disable-next-line default-case
         switch (cronEvery.toString()) {
           case "1":
-            months = "*";
+            months = "*/1";
             break;
           case "2":
             months = `${this.month.incrementStart}/${this.month.incrementIncrement}`;
@@ -859,10 +819,8 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
-            this.month.cronEvery = "1";
-            return;
-          }
+          if (value === "*") return;
+
           if (value.includes("/")) {
             const parts = value.split("/");
             this.month.incrementStart = parts[0];
@@ -895,21 +853,12 @@ export default {
       },
     },
     cron() {
-      return `${this.secondsText || "*"} ${this.minutesText || "*"} ${
-        this.hoursText || "*"
-      } ${this.daysText || "*"} ${this.monthsText || "*"} ${
-        this.weeksText || "?"
-      }`;
+      return `${this.minutesText || "*"} ${this.hoursText || "*"} ${
+        this.daysText || "*"
+      } ${this.monthsText || "*"} ${this.weeksText || "*"}`;
     },
   },
   watch: {
-    visible: {
-      handler(val) {
-        if (val) {
-          this.parseCron();
-        }
-      },
-    },
     $data: {
       handler() {
         this.$emit("input", this.cron);
@@ -921,22 +870,66 @@ export default {
     this.parseCron();
   },
   methods: {
+    applyAdditionalActions(actions) {
+      for (const action of actions) {
+        const actionCallback = this.actionsMap.get(action);
+        if (actionCallback) actionCallback();
+      }
+
+      return this.cron;
+    },
     parseCron() {
       let cron;
       if (!this.value) {
-        this.$emit("input", "* * * * * ?");
-        cron = "* * * * * ?";
+        this.$emit("input", DEFAULT_CRON_EXPRESSION);
+        cron = DEFAULT_CRON_EXPRESSION;
       } else {
         cron = this.value;
       }
       const parts = cron.split(" ");
-      this.secondsText = parts[0];
-      this.minutesText = parts[1];
-      this.hoursText = parts[2];
-      this.daysText = parts[3];
-      this.monthsText = parts[4];
-      this.weeksText = parts[5];
+      this.minutesText = parts[0];
+      this.hoursText = parts[1];
+      this.daysText = parts[2];
+      this.monthsText = parts[3];
+      this.weeksText = parts[4];
     },
   },
 };
 </script>
+
+<style scoped>
+.language {
+  position: absolute;
+  right: 25px;
+  z-index: 1;
+}
+
+.el-tabs {
+  box-shadow: none;
+}
+
+.tabBody .el-row {
+  margin: 10px 0;
+}
+
+.tabBody .el-row.long .el-select {
+  width: 350px;
+}
+
+.tabBody .el-row .el-input-number {
+  width: 110px;
+}
+
+.bottom {
+  width: 100%;
+  text-align: center;
+  margin-top: 5px;
+  position: relative;
+}
+
+.bottom .value {
+  font-size: 18px;
+  display: block;
+  padding: 10px;
+}
+</style>
