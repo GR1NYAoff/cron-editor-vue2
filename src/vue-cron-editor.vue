@@ -1,7 +1,10 @@
 <template>
   <div>
-    <el-input v-model="value" v-if="!hideInput" />
-    <el-button class="language" type="text" @click="locale=(locale==='en'?'cn':'en')">
+    <el-button
+      class="language"
+      type="text"
+      @click="locale = locale === 'en' ? 'cn' : 'en'"
+    >
       {{ locale }}
     </el-button>
     <el-tabs type="border-card">
@@ -411,10 +414,10 @@ import locales from "../locales";
 
 export default {
   name: "VueCronEditor",
-  props: ["value", "i18n", 'hideInput'],
+  props: ["value", "i18n"],
   data() {
     return {
-      locale: this.i18n || 'en',
+      locale: this.i18n || "en",
       second: {
         cronEvery: "",
         incrementStart: "3",
@@ -941,3 +944,40 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.language {
+  position: absolute;
+  right: 25px;
+  z-index: 1;
+}
+
+.el-tabs {
+  box-shadow: none;
+}
+
+.tabBody .el-row {
+  margin: 10px 0;
+}
+
+.tabBody .el-row.long .el-select {
+  width: 350px;
+}
+
+.tabBody .el-row .el-input-number {
+  width: 110px;
+}
+
+.bottom {
+  width: 100%;
+  text-align: center;
+  margin-top: 5px;
+  position: relative;
+}
+
+.bottom .value {
+  font-size: 18px;
+  display: block;
+  padding: 10px;
+}
+</style>
