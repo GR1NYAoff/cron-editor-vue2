@@ -1,9 +1,20 @@
 {
   "name": "cron-editor-vue2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": "https://github.com/GR1NYAoff/cron-editor-vue2",
   "author": "Gregory Tsyapa",
   "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue.js",
+    "vue component",
+    "cron",
+    "cron expression",
+    "crontab",
+    "cron editor",
+    "cronjob",
+    "schedule"
+  ],
   "private": false,
   "description": "cron editor component using basic cron syntax (5 digits)",
   "main": "dist/vue-cron-editor.ssr.js",
