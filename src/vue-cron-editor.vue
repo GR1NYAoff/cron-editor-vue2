@@ -444,9 +444,24 @@ export default {
       locale: this.i18n,
       additionalActions: ADDITIONAL_ACTIONS,
       actionsMap: new Map([
-        [ADDITIONAL_ACTIONS.AssignZeroMinutes, () => (this.minutesText = "0")],
-        [ADDITIONAL_ACTIONS.AssignZeroHours, () => (this.hoursText = "0")],
-        [ADDITIONAL_ACTIONS.AssignFirstDayOfMonth, () => (this.daysText = "1")],
+        [
+          ADDITIONAL_ACTIONS.AssignZeroMinutes,
+          () => {
+            if (this.minutesText === "*") this.minutesText = "0";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.AssignZeroHours,
+          () => {
+            if (this.hoursText === "*") this.hoursText = "0";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.AssignFirstDayOfMonth,
+          () => {
+            if (this.daysText === "*") this.daysText = "1";
+          },
+        ],
       ]),
       minute: {
         cronEvery: "",
