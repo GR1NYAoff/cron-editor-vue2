@@ -448,7 +448,7 @@ export default {
           ADDITIONAL_ACTIONS.AssignZeroMinutes,
           () => {
             const minutesText = this.cron.split(" ")[0];
-            if (minutesText === "*" || minutesText === "*/1")
+            if (minutesText === "*")
               this.minutesText = "0";
           },
         ],
@@ -456,14 +456,14 @@ export default {
           ADDITIONAL_ACTIONS.AssignZeroHours,
           () => {
             const hoursText = this.cron.split(" ")[1];
-            if (hoursText === "*" || hoursText === "*/1") this.hoursText = "0";
+            if (hoursText === "*") this.hoursText = "0";
           },
         ],
         [
           ADDITIONAL_ACTIONS.AssignFirstDayOfMonth,
           () => {
             const daysText = this.cron.split(" ")[2];
-            if (daysText === "*" || daysText === "*/1") this.daysText = "1";
+            if (daysText === "*") this.daysText = "1";
           },
         ],
       ]),
