@@ -4,6 +4,7 @@
       class="language"
       type="text"
       @click="locale = locale === 'en' ? 'cn' : 'en'"
+      v-if="localesButton"
     >
       {{ locale }}
     </el-button>
@@ -421,10 +422,26 @@ const ADDITIONAL_ACTIONS = {
 
 export default {
   name: "VueCronEditor",
-  props: ["value", "i18n"],
+  props: {
+    value: {
+      type: String,
+      default: "",
+      require: true,
+    },
+    i18n: {
+      type: String,
+      default: "en",
+      require: false,
+    },
+    localesButton: {
+      type: Boolean,
+      default: false,
+      require: false,
+    },
+  },
   data() {
     return {
-      locale: this.i18n || "en",
+      locale: this.i18n,
       additionalActions: ADDITIONAL_ACTIONS,
       actionsMap: new Map([
         [ADDITIONAL_ACTIONS.AssignZeroMinutes, () => (this.minutesText = "0")],
