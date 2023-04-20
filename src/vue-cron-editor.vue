@@ -447,19 +447,23 @@ export default {
         [
           ADDITIONAL_ACTIONS.AssignZeroMinutes,
           () => {
-            if (this.minutesText === "*") this.minutesText = "0";
+            const minuteText = this.cron.split(" ")[0];
+            if (minuteText === "*" || minutesText === "*/1")
+              this.minutesText = "0";
           },
         ],
         [
           ADDITIONAL_ACTIONS.AssignZeroHours,
           () => {
-            if (this.hoursText === "*") this.hoursText = "0";
+            const hoursText = this.cron.split(" ")[1];
+            if (hoursText === "*" || hoursText === "*/1") this.hoursText = "0";
           },
         ],
         [
           ADDITIONAL_ACTIONS.AssignFirstDayOfMonth,
           () => {
-            if (this.daysText === "*") this.daysText = "1";
+            const daysText = this.cron.split(" ")[2];
+            if (daysText === "*" || daysText === "*/1") this.daysText = "1";
           },
         ],
       ]),
