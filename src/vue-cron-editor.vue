@@ -447,8 +447,8 @@ export default {
         [
           ADDITIONAL_ACTIONS.AssignZeroMinutes,
           () => {
-            const minuteText = this.cron.split(" ")[0];
-            if (minuteText === "*" || minutesText === "*/1")
+            const minutesText = this.cron.split(" ")[0];
+            if (minutesText === "*" || minutesText === "*/1")
               this.minutesText = "0";
           },
         ],
