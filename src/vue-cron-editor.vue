@@ -448,8 +448,7 @@ export default {
           ADDITIONAL_ACTIONS.AssignZeroMinutes,
           () => {
             const minutesText = this.cron.split(" ")[0];
-            if (minutesText === "*")
-              this.minutesText = "0";
+            if (minutesText === "*") this.minutesText = "0";
           },
         ],
         [
@@ -541,7 +540,7 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*" || value === "*/1") {
+          if (value === "*") {
             this.minute.cronEvery = "1";
             return;
           }
@@ -582,7 +581,7 @@ export default {
         const { cronEvery } = this.hour;
         switch (cronEvery.toString()) {
           case "1":
-            hours = "*/1";
+            hours = "*";
             break;
           case "2":
             hours = `${this.hour.incrementStart}/${this.hour.incrementIncrement}`;
@@ -603,10 +602,6 @@ export default {
         if (value) {
           if (value === "*") return;
 
-          if (value === "*/1") {
-            this.hour.cronEvery = "1";
-            return;
-          }
           if (value.includes("/")) {
             const parts = value.split("/");
             this.hour.incrementStart = parts[0];
@@ -644,7 +639,7 @@ export default {
         const { cronEvery } = this.day;
         switch (cronEvery.toString()) {
           case "1":
-            days = "*/1";
+            days = "*";
             break;
           case "2":
           case "4":
@@ -804,7 +799,7 @@ export default {
         const { cronEvery } = this.month;
         switch (cronEvery.toString()) {
           case "1":
-            months = "*/1";
+            months = "*";
             break;
           case "2":
             months = `${this.month.incrementStart}/${this.month.incrementIncrement}`;
