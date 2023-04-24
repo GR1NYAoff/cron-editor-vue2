@@ -16,7 +16,18 @@
         </span>
         <div class="tabBody">
           <el-row>
-            <el-radio v-model="minute.cronEvery" label="1">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.UnselectEveryHour,
+                    additionalActions.UnselectEveryDay,
+                    additionalActions.UnselectEveryMonth,
+                  ])
+              "
+              v-model="minute.cronEvery"
+              label="1"
+            >
               {{ text.Minutes.every }}
             </el-radio>
           </el-row>
@@ -84,7 +95,11 @@
             <el-radio
               @change="
                 () =>
-                  applyAdditionalActions([additionalActions.AssignZeroMinutes])
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.UnselectEveryDay,
+                    additionalActions.UnselectEveryMonth,
+                  ])
               "
               v-model="hour.cronEvery"
               label="1"
@@ -155,6 +170,7 @@
                   applyAdditionalActions([
                     additionalActions.AssignZeroMinutes,
                     additionalActions.AssignZeroHours,
+                    additionalActions.UnselectEveryMonth,
                   ])
               "
               v-model="day.cronEvery"
@@ -418,6 +434,9 @@ const ADDITIONAL_ACTIONS = {
   AssignZeroMinutes: "AssignZeroMinutes",
   AssignZeroHours: "AssignZeroHours",
   AssignFirstDayOfMonth: "AssignFirstDayOfMonth",
+  UnselectEveryHour: "UnselectEveryHour",
+  UnselectEveryDay: "UnselectEveryDay",
+  UnselectEveryMonth: "UnselectEveryMonth",
 };
 
 export default {
@@ -463,6 +482,24 @@ export default {
           () => {
             const daysText = this.cron.split(" ")[2];
             if (daysText === "*") this.daysText = "1";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryHour,
+          () => {
+            if (this.hour.cronEvery === "1") this.hour.cronEvery = "";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryDay,
+          () => {
+            if (this.day.cronEvery === "1") this.day.cronEvery = "";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryMonth,
+          () => {
+            if (this.month.cronEvery === "1") this.month.cronEvery = "";
           },
         ],
       ]),
