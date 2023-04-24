@@ -434,6 +434,7 @@ const ADDITIONAL_ACTIONS = {
   AssignZeroMinutes: "AssignZeroMinutes",
   AssignZeroHours: "AssignZeroHours",
   AssignFirstDayOfMonth: "AssignFirstDayOfMonth",
+  SelectEveryMinute: "SelectEveryMinute",
   UnselectEveryHour: "UnselectEveryHour",
   UnselectEveryDay: "UnselectEveryDay",
   UnselectEveryMonth: "UnselectEveryMonth",
@@ -453,6 +454,11 @@ export default {
       require: false,
     },
     localesButton: {
+      type: Boolean,
+      default: false,
+      require: false,
+    },
+    visible: {
       type: Boolean,
       default: false,
       require: false,
@@ -482,6 +488,16 @@ export default {
           () => {
             const daysText = this.cron.split(" ")[2];
             if (daysText === "*") this.daysText = "1";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.SelectEveryMinute,
+          () => {
+            if (this.minute.cronEvery !== "1") this.minute.cronEvery = "1";
+            this.hour.cronEvery = "";
+            this.day.cronEvery = "";
+            this.month.cronEvery = "";
+            this.week.cronEvery = "";
           },
         ],
         [
@@ -905,6 +921,15 @@ export default {
         this.parseCron();
       },
     },
+    visible: {
+      handler(val) {
+        if (!val) {
+          this.setDefaultCronValue();
+        } else {
+          this.parseCron();
+        }
+      },
+    },
   },
   mounted() {
     this.parseCron();
@@ -923,14 +948,37 @@ export default {
       return this.cron;
     },
     parseCron() {
-      const [minutesText, hoursText, daysText, monthsText, weeksText] = 
-      !this.value ? DEFAULT_CRON_EXPRESSION.split(" ") : this.value.split(" ");
+      const cronValue = !this.value
+        ? DEFAULT_CRON_EXPRESSION.split(" ")
+        : this.value.split(" ");
+
+      this.setCronValue(cronValue);
+      this.setEvery();
+    },
+    setCronValue(cronValue) {
+      const [minutesText, hoursText, daysText, monthsText, weeksText] =
+        cronValue;
 
       this.minutesText = minutesText;
       this.hoursText = hoursText;
       this.daysText = daysText;
       this.monthsText = monthsText;
       this.weeksText = weeksText;
+    },
+    setDefaultCronValue() {
+      this.setCronValue(DEFAULT_CRON_EXPRESSION);
+      this.applyAdditionalActions([this.additionalActions.SelectEveryMinute]);
+    },
+    setEvery() {
+      if (this.minute.cronEvery === "" || this.minute.cronEvery === "1") {
+        this.minute.cronEvery = "1";
+      } else if (this.hour.cronEvery === "" || this.hour.cronEvery === "1") {
+        this.hour.cronEvery = "1";
+      } else if (this.day.cronEvery === "" || this.day.cronEvery === "1") {
+        this.day.cronEvery = "1";
+      } else if (this.month.cronEvery === "" || this.month.cronEvery === "1") {
+        this.month.cronEvery = "1";
+      }
     },
   },
 };
