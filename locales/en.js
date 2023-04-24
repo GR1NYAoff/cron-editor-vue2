@@ -1,11 +1,4 @@
 export default {
-  Seconds: {
-    name: 'Seconds',
-    every: 'Every second',
-    interval: ['Every', 'second(s) starting at second'],
-    specific: 'Specific second (choose one or many)',
-    cycle: ['Every second between second', 'and second']
-  },
   Minutes: {
     name: 'Minutes',
     every: 'Every minute',
@@ -41,14 +34,5 @@ export default {
     interval: ['Every', 'month(s) starting in'],
     specific: 'Specific month (choose one or many)',
     cycle: ['Every month between', 'and']
-  },
-  Year: {
-    name: 'Year',
-    every: 'Any year',
-    interval: ['Every', 'year(s) starting in'],
-    specific: 'Specific year (choose one or many)',
-    cycle: ['Every year between', 'and']
-  },
-  Save: 'Save',
-  Close: 'Close'
+  }
 };

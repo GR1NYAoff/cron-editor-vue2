@@ -99,6 +99,9 @@ npm run serve
 npm run build
 ```
 
+### About the Author
+This package was created by Gregory Tsyapa, a software developer at [OSKI solutions](https://oski.site/)
+
 ### Attribution
 
 This component is inspired by [vue-cron](https://github.com/1615450788/vue-cron) and [vue-cron-editor-buefy](https://github.com/karoletrych/vue-cron-editor)

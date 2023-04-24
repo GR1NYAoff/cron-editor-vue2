@@ -16,7 +16,18 @@
         </span>
         <div class="tabBody">
           <el-row>
-            <el-radio v-model="minute.cronEvery" label="1">
+            <el-radio
+              @change="
+                () =>
+                  applyAdditionalActions([
+                    additionalActions.UnselectEveryHour,
+                    additionalActions.UnselectEveryDay,
+                    additionalActions.UnselectEveryMonth,
+                  ])
+              "
+              v-model="minute.cronEvery"
+              label="1"
+            >
               {{ text.Minutes.every }}
             </el-radio>
           </el-row>
@@ -84,7 +95,11 @@
             <el-radio
               @change="
                 () =>
-                  applyAdditionalActions([additionalActions.AssignZeroMinutes])
+                  applyAdditionalActions([
+                    additionalActions.AssignZeroMinutes,
+                    additionalActions.UnselectEveryDay,
+                    additionalActions.UnselectEveryMonth,
+                  ])
               "
               v-model="hour.cronEvery"
               label="1"
@@ -155,6 +170,7 @@
                   applyAdditionalActions([
                     additionalActions.AssignZeroMinutes,
                     additionalActions.AssignZeroHours,
+                    additionalActions.UnselectEveryMonth,
                   ])
               "
               v-model="day.cronEvery"
@@ -418,6 +434,10 @@ const ADDITIONAL_ACTIONS = {
   AssignZeroMinutes: "AssignZeroMinutes",
   AssignZeroHours: "AssignZeroHours",
   AssignFirstDayOfMonth: "AssignFirstDayOfMonth",
+  SelectEveryMinute: "SelectEveryMinute",
+  UnselectEveryHour: "UnselectEveryHour",
+  UnselectEveryDay: "UnselectEveryDay",
+  UnselectEveryMonth: "UnselectEveryMonth",
 };
 
 export default {
@@ -434,6 +454,11 @@ export default {
       require: false,
     },
     localesButton: {
+      type: Boolean,
+      default: false,
+      require: false,
+    },
+    visible: {
       type: Boolean,
       default: false,
       require: false,
@@ -463,6 +488,34 @@ export default {
           () => {
             const daysText = this.cron.split(" ")[2];
             if (daysText === "*") this.daysText = "1";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.SelectEveryMinute,
+          () => {
+            if (this.minute.cronEvery !== "1") this.minute.cronEvery = "1";
+            this.hour.cronEvery = "";
+            this.day.cronEvery = "";
+            this.month.cronEvery = "";
+            this.week.cronEvery = "";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryHour,
+          () => {
+            if (this.hour.cronEvery === "1") this.hour.cronEvery = "";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryDay,
+          () => {
+            if (this.day.cronEvery === "1") this.day.cronEvery = "";
+          },
+        ],
+        [
+          ADDITIONAL_ACTIONS.UnselectEveryMonth,
+          () => {
+            if (this.month.cronEvery === "1") this.month.cronEvery = "";
           },
         ],
       ]),
@@ -540,7 +593,7 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
+          if (value === "*" && !this.minute.cronEvery) {
             this.minute.cronEvery = "1";
             return;
           }
@@ -858,17 +911,34 @@ export default {
     },
   },
   watch: {
-    $data: {
+    cron: {
       handler() {
-        this.$emit("input", this.cron);
+        this.updateInputValue(this.cron);
       },
-      deep: true,
+    },
+    value: {
+      handler() {
+        this.parseCron();
+      },
+    },
+    visible: {
+      handler(val) {
+        if (!val) {
+          this.setDefaultCronValue();
+        } else {
+          this.parseCron();
+        }
+      },
     },
   },
   mounted() {
     this.parseCron();
+    this.updateInputValue(this.cron);
   },
   methods: {
+    updateInputValue(value) {
+      this.$emit("input", value);
+    },
     applyAdditionalActions(actions) {
       for (const action of actions) {
         const actionCallback = this.actionsMap.get(action);
@@ -878,19 +948,37 @@ export default {
       return this.cron;
     },
     parseCron() {
-      let cron;
-      if (!this.value) {
-        this.$emit("input", DEFAULT_CRON_EXPRESSION);
-        cron = DEFAULT_CRON_EXPRESSION;
-      } else {
-        cron = this.value;
+      const cronValue = !this.value
+        ? DEFAULT_CRON_EXPRESSION.split(" ")
+        : this.value.split(" ");
+
+      this.setCronValue(cronValue);
+      this.setEvery();
+    },
+    setCronValue(cronValue) {
+      const [minutesText, hoursText, daysText, monthsText, weeksText] =
+        cronValue;
+
+      this.minutesText = minutesText;
+      this.hoursText = hoursText;
+      this.daysText = daysText;
+      this.monthsText = monthsText;
+      this.weeksText = weeksText;
+    },
+    setDefaultCronValue() {
+      this.setCronValue(DEFAULT_CRON_EXPRESSION);
+      this.applyAdditionalActions([this.additionalActions.SelectEveryMinute]);
+    },
+    setEvery() {
+      if (this.minute.cronEvery === "" || this.minute.cronEvery === "1") {
+        this.minute.cronEvery = "1";
+      } else if (this.hour.cronEvery === "" || this.hour.cronEvery === "1") {
+        this.hour.cronEvery = "1";
+      } else if (this.day.cronEvery === "" || this.day.cronEvery === "1") {
+        this.day.cronEvery = "1";
+      } else if (this.month.cronEvery === "" || this.month.cronEvery === "1") {
+        this.month.cronEvery = "1";
       }
-      const parts = cron.split(" ");
-      this.minutesText = parts[0];
-      this.hoursText = parts[1];
-      this.daysText = parts[2];
-      this.monthsText = parts[3];
-      this.weeksText = parts[4];
     },
   },
 };
