@@ -58,7 +58,13 @@
                 size="small"
                 multiple
               >
-                <el-option v-for="val in 60" :key="val" :value="val - 1">
+                <el-option
+                  v-for="val in 60"
+                  :key="val"
+                  :value="
+                    Array.from({ length: 60 }, (_, i) => String(i))[val - 1]
+                  "
+                >
                   {{ val - 1 }}
                 </el-option>
               </el-select>
@@ -130,7 +136,13 @@
             <el-radio v-model="hour.cronEvery" class="long" label="3">
               {{ text.Hours.specific }}
               <el-select v-model="hour.specificSpecific" size="small" multiple>
-                <el-option v-for="val in 24" :key="val" :value="val - 1">
+                <el-option
+                  v-for="val in 24"
+                  :key="val"
+                  :value="
+                    Array.from({ length: 24 }, (_, i) => String(i))[val - 1]
+                  "
+                >
                   {{ val - 1 }}
                 </el-option>
               </el-select>
@@ -238,7 +250,13 @@
             <el-radio v-model="day.cronEvery" class="long" label="5">
               {{ text.Day.specificDay }}
               <el-select v-model="day.specificSpecific" size="small" multiple>
-                <el-option v-for="val in 31" :key="val" :value="val">
+                <el-option
+                  v-for="val in 31"
+                  :key="val"
+                  :value="
+                    Array.from({ length: 31 }, (_, i) => String(i + 1))[val - 1]
+                  "
+                >
                   {{ val }}
                 </el-option>
               </el-select>
@@ -397,7 +415,9 @@
                   v-for="val in 12"
                   :key="val"
                   :label="val"
-                  :value="val"
+                  :value="
+                    Array.from({ length: 12 }, (_, i) => String(i + 1))[val - 1]
+                  "
                 />
               </el-select>
             </el-radio>
