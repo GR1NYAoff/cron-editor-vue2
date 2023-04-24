@@ -1,11 +1,4 @@
 export default {
-    Seconds:{
-        name:'秒',
-        every:'每一秒钟',
-        interval:['每隔','秒执行 从','秒开始'],
-        specific:'具体秒数(可多选)',
-        cycle:['周期从','到','秒']
-    },
     Minutes:{
         name:'分',
         every:'每一分钟',
@@ -41,14 +34,5 @@ export default {
         interval:['每隔','月执行 从','月开始'],
         specific:'具体月数(可多选)',
         cycle:['从','到','月之间的每个月']
-    },
-    Year:{
-        name:'年',
-        every:'每一年',
-        interval:['每隔','年执行 从','年开始'],
-        specific:'具体年份(可多选)',
-        cycle:['从','到','年之间的每一年']
-    },
-    Save:'保存',
-    Close:'关闭'
+    }
 }
