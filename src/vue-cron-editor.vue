@@ -540,7 +540,7 @@ export default {
       },
       set(value) {
         if (value) {
-          if (value === "*") {
+          if (value === "*" && !this.minute.cronEvery) {
             this.minute.cronEvery = "1";
             return;
           }
@@ -858,17 +858,25 @@ export default {
     },
   },
   watch: {
-    $data: {
+    cron: {
       handler() {
-        this.$emit("input", this.cron);
+        this.updateInputValue(this.cron);
       },
-      deep: true,
+    },
+    value: {
+      handler() {
+        this.parseCron();
+      },
     },
   },
   mounted() {
     this.parseCron();
+    this.updateInputValue(this.cron);
   },
   methods: {
+    updateInputValue(value) {
+      this.$emit("input", value);
+    },
     applyAdditionalActions(actions) {
       for (const action of actions) {
         const actionCallback = this.actionsMap.get(action);
@@ -878,19 +886,14 @@ export default {
       return this.cron;
     },
     parseCron() {
-      let cron;
-      if (!this.value) {
-        this.$emit("input", DEFAULT_CRON_EXPRESSION);
-        cron = DEFAULT_CRON_EXPRESSION;
-      } else {
-        cron = this.value;
-      }
-      const parts = cron.split(" ");
-      this.minutesText = parts[0];
-      this.hoursText = parts[1];
-      this.daysText = parts[2];
-      this.monthsText = parts[3];
-      this.weeksText = parts[4];
+      const [minutesText, hoursText, daysText, monthsText, weeksText] = 
+      !this.value ? DEFAULT_CRON_EXPRESSION.split(" ") : this.value.split(" ");
+
+      this.minutesText = minutesText;
+      this.hoursText = hoursText;
+      this.daysText = daysText;
+      this.monthsText = monthsText;
+      this.weeksText = weeksText;
     },
   },
 };
