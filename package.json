@@ -1,6 +1,6 @@
 {
   "name": "cron-editor-vue2",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "repository": "https://github.com/GR1NYAoff/cron-editor-vue2",
   "author": "Gregory Tsyapa",
   "license": "MIT",
@@ -35,8 +35,8 @@
     "build:unpkg": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format iife"
   },
   "dependencies": {
-    "vue": "^2.6.14",
-    "element-ui": "^2.15.13"
+    "element-ui": "^2.13.2",
+    "vue": "^2.6.14"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
