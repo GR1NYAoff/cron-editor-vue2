@@ -119,7 +119,7 @@
               <el-input-number
                 v-model="hour.incrementIncrement"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="23"
               />
               {{ locale.Hours.interval[1] }}
@@ -395,14 +395,14 @@
               <el-input-number
                 v-model="month.incrementIncrement"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="12"
               />
               {{ locale.Month.interval[1] }}
               <el-input-number
                 v-model="month.incrementStart"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="12"
               />
             </el-radio>
@@ -754,25 +754,12 @@ export default {
             this.day.cronEvery = "3";
             return;
           }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.day.rangeStart = parts[0];
-            this.day.rangeEnd = parts[1];
-            this.day.cronEvery = "4";
-            return;
-          }
           if (value.includes(",")) {
             const parts = value.split(",");
             this.day.specificSpecific = [];
             parts.forEach((el) => {
               this.day.specificSpecific.push(el);
             });
-            this.day.cronEvery = "5";
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.day.specificSpecific = [];
-            this.day.specificSpecific.push(value);
             this.day.cronEvery = "5";
             return;
           }
@@ -784,18 +771,29 @@ export default {
             this.day.cronEvery = "7";
             return;
           }
-          const case8 = /L-(\d+)/g;
-          let match = case8.exec(value);
+          let match = /L-(\d+)/g.exec(value);
           if (match) {
             this.day.cronEvery = "8";
             this.day.cronDaysBeforeEomMinus = match[1];
             return;
           }
-          const case9 = /(\d+)W/g;
-          match = case9.exec(value);
+          match = /(\d+)W/g.exec(value);
           if (match) {
             this.day.cronEvery = "9";
             this.day.cronLastSpecificDomDay = match[1];
+            return;
+          }
+          if (parseInt(value, 10)) {
+            this.day.specificSpecific = [];
+            this.day.specificSpecific.push(value);
+            this.day.cronEvery = "5";
+            return;
+          }
+          if (value.includes("-")) {
+            const parts = value.split("-");
+            this.day.rangeStart = parts[0];
+            this.day.rangeEnd = parts[1];
+            this.day.cronEvery = "4";
           }
         }
       },
@@ -841,7 +839,8 @@ export default {
             this.week.incrementIncrement = parts[1];
             this.day.cronEvery = "2";
             return;
-          } else if (value.includes(",")) {
+          }
+          if (value.includes(",")) {
             const parts = value.split(",");
             this.week.specificSpecific = [];
             parts.forEach((el) => {
@@ -849,16 +848,18 @@ export default {
             });
             this.day.cronEvery = "4";
             return;
-          } else if (value.includes("#")) {
+          }
+          if (value.includes("#")) {
             const parts = value.split("#");
             this.week.cronNthDayDay = parseInt(parts[0]);
             this.week.cronNthDayNth = parseInt(parts[1]);
             this.day.cronEvery = "10";
-          } else if (parseInt(value, 10)) {
+            return;
+          }
+          if (parseInt(value, 10)) {
             this.week.specificSpecific = [];
             this.week.specificSpecific.push(value);
             this.day.cronEvery = "4";
-            return;
           }
         }
       },
