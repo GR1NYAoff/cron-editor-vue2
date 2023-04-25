@@ -119,7 +119,7 @@
               <el-input-number
                 v-model="hour.incrementIncrement"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="23"
               />
               {{ locale.Hours.interval[1] }}
@@ -206,7 +206,7 @@
                   v-for="val in 7"
                   :key="val"
                   :label="locale.Week[val - 1]"
-                  :value="val"
+                  :value="val - 1"
                 />
               </el-select>
               {{ locale.Day.intervalWeek[2] }}
@@ -359,7 +359,7 @@
                   v-for="val in 7"
                   :key="val"
                   :label="locale.Week[val - 1]"
-                  :value="val"
+                  :value="val - 1"
                 />
               </el-select>
               {{ locale.Day.someWeekday[1] }}
@@ -395,14 +395,14 @@
               <el-input-number
                 v-model="month.incrementIncrement"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="12"
               />
               {{ locale.Month.interval[1] }}
               <el-input-number
                 v-model="month.incrementStart"
                 size="small"
-                :min="0"
+                :min="1"
                 :max="12"
               />
             </el-radio>
@@ -568,10 +568,10 @@ export default {
       },
       week: {
         cronEvery: "",
-        incrementStart: "1",
+        incrementStart: 0,
         incrementIncrement: "1",
         specificSpecific: [],
-        cronNthDayDay: 1,
+        cronNthDayDay: 0,
         cronNthDayNth: "1",
       },
       month: {
@@ -754,25 +754,12 @@ export default {
             this.day.cronEvery = "3";
             return;
           }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.day.rangeStart = parts[0];
-            this.day.rangeEnd = parts[1];
-            this.day.cronEvery = "4";
-            return;
-          }
           if (value.includes(",")) {
             const parts = value.split(",");
             this.day.specificSpecific = [];
             parts.forEach((el) => {
               this.day.specificSpecific.push(el);
             });
-            this.day.cronEvery = "5";
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.day.specificSpecific = [];
-            this.day.specificSpecific.push(value);
             this.day.cronEvery = "5";
             return;
           }
@@ -784,18 +771,29 @@ export default {
             this.day.cronEvery = "7";
             return;
           }
-          const case8 = /L-(\d+)/g;
-          let match = case8.exec(value);
+          let match = /L-(\d+)/g.exec(value);
           if (match) {
             this.day.cronEvery = "8";
             this.day.cronDaysBeforeEomMinus = match[1];
             return;
           }
-          const case9 = /(\d+)W/g;
-          match = case9.exec(value);
+          match = /(\d+)W/g.exec(value);
           if (match) {
             this.day.cronEvery = "9";
             this.day.cronLastSpecificDomDay = match[1];
+            return;
+          }
+          if (parseInt(value, 10)) {
+            this.day.specificSpecific = [];
+            this.day.specificSpecific.push(value);
+            this.day.cronEvery = "5";
+            return;
+          }
+          if (value.includes("-")) {
+            const parts = value.split("-");
+            this.day.rangeStart = parts[0];
+            this.day.rangeEnd = parts[1];
+            this.day.cronEvery = "4";
           }
         }
       },
@@ -837,7 +835,7 @@ export default {
 
           if (value.includes("/")) {
             const parts = value.split("/");
-            this.week.incrementStart = parts[0];
+            this.week.incrementStart = parseInt(parts[0]);
             this.week.incrementIncrement = parts[1];
             this.day.cronEvery = "2";
             return;
@@ -851,17 +849,17 @@ export default {
             this.day.cronEvery = "4";
             return;
           }
+          if (value.includes("#")) {
+            const parts = value.split("#");
+            this.week.cronNthDayDay = parseInt(parts[0]);
+            this.week.cronNthDayNth = parseInt(parts[1]);
+            this.day.cronEvery = "10";
+            return;
+          }
           if (parseInt(value, 10)) {
             this.week.specificSpecific = [];
             this.week.specificSpecific.push(value);
             this.day.cronEvery = "4";
-            return;
-          }
-          if (value.includes("#")) {
-            const parts = value.split("#");
-            this.week.cronNthDayDay = parts[0];
-            this.week.cronNthDayNth = parts[1];
-            this.day.cronEvery = "10";
           }
         }
       },
