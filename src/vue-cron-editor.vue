@@ -206,7 +206,7 @@
                   v-for="val in 7"
                   :key="val"
                   :label="locale.Week[val - 1]"
-                  :value="val"
+                  :value="val - 1"
                 />
               </el-select>
               {{ locale.Day.intervalWeek[2] }}
@@ -359,7 +359,7 @@
                   v-for="val in 7"
                   :key="val"
                   :label="locale.Week[val - 1]"
-                  :value="val"
+                  :value="val - 1"
                 />
               </el-select>
               {{ locale.Day.someWeekday[1] }}
@@ -568,10 +568,10 @@ export default {
       },
       week: {
         cronEvery: "",
-        incrementStart: "1",
+        incrementStart: 0,
         incrementIncrement: "1",
         specificSpecific: [],
-        cronNthDayDay: 1,
+        cronNthDayDay: 0,
         cronNthDayNth: "1",
       },
       month: {
@@ -837,12 +837,11 @@ export default {
 
           if (value.includes("/")) {
             const parts = value.split("/");
-            this.week.incrementStart = parts[0];
+            this.week.incrementStart = parseInt(parts[0]);
             this.week.incrementIncrement = parts[1];
             this.day.cronEvery = "2";
             return;
-          }
-          if (value.includes(",")) {
+          } else if (value.includes(",")) {
             const parts = value.split(",");
             this.week.specificSpecific = [];
             parts.forEach((el) => {
@@ -850,18 +849,16 @@ export default {
             });
             this.day.cronEvery = "4";
             return;
-          }
-          if (parseInt(value, 10)) {
+          } else if (value.includes("#")) {
+            const parts = value.split("#");
+            this.week.cronNthDayDay = parseInt(parts[0]);
+            this.week.cronNthDayNth = parseInt(parts[1]);
+            this.day.cronEvery = "10";
+          } else if (parseInt(value, 10)) {
             this.week.specificSpecific = [];
             this.week.specificSpecific.push(value);
             this.day.cronEvery = "4";
             return;
-          }
-          if (value.includes("#")) {
-            const parts = value.split("#");
-            this.week.cronNthDayDay = parts[0];
-            this.week.cronNthDayNth = parts[1];
-            this.day.cronEvery = "10";
           }
         }
       },
