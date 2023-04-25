@@ -3,16 +3,16 @@
     <el-button
       class="language"
       type="text"
-      @click="locale = locale === 'en' ? 'cn' : 'en'"
+      @click="currentLocale = currentLocale === 'en' ? 'cn' : 'en'"
       v-if="localesButton"
     >
-      {{ locale }}
+      {{ currentLocale }}
     </el-button>
     <el-tabs type="border-card">
       <el-tab-pane>
         <span slot="label">
           <i class="el-icon-date" />
-          {{ text.Minutes.name }}
+          {{ locale.Minutes.name }}
         </span>
         <div class="tabBody">
           <el-row>
@@ -28,31 +28,31 @@
               v-model="minute.cronEvery"
               label="1"
             >
-              {{ text.Minutes.every }}
+              {{ locale.Minutes.every }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="minute.cronEvery" label="2">
-              {{ text.Minutes.interval[0] }}
+              {{ locale.Minutes.interval[0] }}
               <el-input-number
                 v-model="minute.incrementIncrement"
                 size="small"
                 :min="1"
                 :max="59"
               />
-              {{ text.Minutes.interval[1] }}
+              {{ locale.Minutes.interval[1] }}
               <el-input-number
                 v-model="minute.incrementStart"
                 size="small"
                 :min="0"
                 :max="59"
               />
-              {{ text.Minutes.interval[2] || "" }}
+              {{ locale.Minutes.interval[2] || "" }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="minute.cronEvery" class="long" label="3">
-              {{ text.Minutes.specific }}
+              {{ locale.Minutes.specific }}
               <el-select
                 v-model="minute.specificSpecific"
                 size="small"
@@ -72,21 +72,21 @@
           </el-row>
           <el-row>
             <el-radio v-model="minute.cronEvery" label="4">
-              {{ text.Minutes.cycle[0] }}
+              {{ locale.Minutes.cycle[0] }}
               <el-input-number
                 v-model="minute.rangeStart"
                 size="small"
                 :min="0"
                 :max="Number(minute.rangeEnd) - 1"
               />
-              {{ text.Minutes.cycle[1] }}
+              {{ locale.Minutes.cycle[1] }}
               <el-input-number
                 v-model="minute.rangeEnd"
                 size="small"
                 :min="Number(minute.rangeStart) + 1"
                 :max="59"
               />
-              {{ text.Minutes.cycle[2] }}
+              {{ locale.Minutes.cycle[2] }}
             </el-radio>
           </el-row>
         </div>
@@ -94,7 +94,7 @@
       <el-tab-pane>
         <span slot="label">
           <i class="el-icon-date" />
-          {{ text.Hours.name }}
+          {{ locale.Hours.name }}
         </span>
         <div class="tabBody">
           <el-row>
@@ -110,31 +110,31 @@
               v-model="hour.cronEvery"
               label="1"
             >
-              {{ text.Hours.every }}
+              {{ locale.Hours.every }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="hour.cronEvery" label="2">
-              {{ text.Hours.interval[0] }}
+              {{ locale.Hours.interval[0] }}
               <el-input-number
                 v-model="hour.incrementIncrement"
                 size="small"
                 :min="0"
                 :max="23"
               />
-              {{ text.Hours.interval[1] }}
+              {{ locale.Hours.interval[1] }}
               <el-input-number
                 v-model="hour.incrementStart"
                 size="small"
                 :min="0"
                 :max="23"
               />
-              {{ text.Hours.interval[2] }}
+              {{ locale.Hours.interval[2] }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="hour.cronEvery" class="long" label="3">
-              {{ text.Hours.specific }}
+              {{ locale.Hours.specific }}
               <el-select v-model="hour.specificSpecific" size="small" multiple>
                 <el-option
                   v-for="val in 24"
@@ -150,21 +150,21 @@
           </el-row>
           <el-row>
             <el-radio v-model="hour.cronEvery" label="4">
-              {{ text.Hours.cycle[0] }}
+              {{ locale.Hours.cycle[0] }}
               <el-input-number
                 v-model="hour.rangeStart"
                 size="small"
                 :min="0"
                 :max="Number(hour.rangeEnd) - 1"
               />
-              {{ text.Hours.cycle[1] }}
+              {{ locale.Hours.cycle[1] }}
               <el-input-number
                 v-model="hour.rangeEnd"
                 size="small"
                 :min="Number(hour.rangeStart) + 1"
                 :max="23"
               />
-              {{ text.Hours.cycle[2] }}
+              {{ locale.Hours.cycle[2] }}
             </el-radio>
           </el-row>
         </div>
@@ -172,7 +172,7 @@
       <el-tab-pane>
         <span slot="label">
           <i class="el-icon-date" />
-          {{ text.Day.name }}
+          {{ locale.Day.name }}
         </span>
         <div class="tabBody">
           <el-row>
@@ -188,57 +188,57 @@
               v-model="day.cronEvery"
               label="1"
             >
-              {{ text.Day.every }}
+              {{ locale.Day.every }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="day.cronEvery" label="2">
-              {{ text.Day.intervalWeek[0] }}
+              {{ locale.Day.intervalWeek[0] }}
               <el-input-number
                 v-model="week.incrementIncrement"
                 size="small"
                 :min="1"
                 :max="7"
               />
-              {{ text.Day.intervalWeek[1] }}
+              {{ locale.Day.intervalWeek[1] }}
               <el-select v-model="week.incrementStart" size="small">
                 <el-option
                   v-for="val in 7"
                   :key="val"
-                  :label="text.Week[val - 1]"
+                  :label="locale.Week[val - 1]"
                   :value="val"
                 />
               </el-select>
-              {{ text.Day.intervalWeek[2] }}
+              {{ locale.Day.intervalWeek[2] }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="day.cronEvery" label="3">
-              {{ text.Day.intervalDay[0] }}
+              {{ locale.Day.intervalDay[0] }}
               <el-input-number
                 v-model="day.incrementIncrement"
                 size="small"
                 :min="1"
                 :max="31"
               />
-              {{ text.Day.intervalDay[1] }}
+              {{ locale.Day.intervalDay[1] }}
               <el-input-number
                 v-model="day.incrementStart"
                 size="small"
                 :min="1"
                 :max="31"
               />
-              {{ text.Day.intervalDay[2] }}
+              {{ locale.Day.intervalDay[2] }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="day.cronEvery" class="long" label="4">
-              {{ text.Day.specificWeek }}
+              {{ locale.Day.specificWeek }}
               <el-select v-model="week.specificSpecific" size="small" multiple>
                 <el-option
                   v-for="val in 7"
                   :key="val"
-                  :label="text.Week[val - 1]"
+                  :label="locale.Week[val - 1]"
                   :value="
                     ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][val - 1]
                   "
@@ -248,7 +248,7 @@
           </el-row>
           <el-row>
             <el-radio v-model="day.cronEvery" class="long" label="5">
-              {{ text.Day.specificDay }}
+              {{ locale.Day.specificDay }}
               <el-select v-model="day.specificSpecific" size="small" multiple>
                 <el-option
                   v-for="val in 31"
@@ -274,7 +274,7 @@
               v-model="day.cronEvery"
               label="6"
             >
-              {{ text.Day.lastDay }}
+              {{ locale.Day.lastDay }}
             </el-radio>
           </el-row>
           <el-row>
@@ -289,7 +289,7 @@
               v-model="day.cronEvery"
               label="7"
             >
-              {{ text.Day.lastWeekday }}
+              {{ locale.Day.lastWeekday }}
             </el-radio>
           </el-row>
           <el-row>
@@ -310,7 +310,7 @@
                 :min="1"
                 :max="31"
               />
-              {{ text.Day.beforeEndMonth[0] }}
+              {{ locale.Day.beforeEndMonth[0] }}
             </el-radio>
           </el-row>
           <el-row>
@@ -325,14 +325,14 @@
               v-model="day.cronEvery"
               label="9"
             >
-              {{ text.Day.nearestWeekday[0] }}
+              {{ locale.Day.nearestWeekday[0] }}
               <el-input-number
                 v-model="day.cronDaysNearestWeekday"
                 size="small"
                 :min="1"
                 :max="31"
               />
-              {{ text.Day.nearestWeekday[1] }}
+              {{ locale.Day.nearestWeekday[1] }}
             </el-radio>
           </el-row>
           <el-row>
@@ -347,7 +347,7 @@
               v-model="day.cronEvery"
               label="10"
             >
-              {{ text.Day.someWeekday[0] }}
+              {{ locale.Day.someWeekday[0] }}
               <el-input-number
                 v-model="week.cronNthDayNth"
                 size="small"
@@ -358,11 +358,11 @@
                 <el-option
                   v-for="val in 7"
                   :key="val"
-                  :label="text.Week[val - 1]"
+                  :label="locale.Week[val - 1]"
                   :value="val"
                 />
               </el-select>
-              {{ text.Day.someWeekday[1] }}
+              {{ locale.Day.someWeekday[1] }}
             </el-radio>
           </el-row>
         </div>
@@ -370,7 +370,7 @@
       <el-tab-pane>
         <span slot="label">
           <i class="el-icon-date" />
-          {{ text.Month.name }}
+          {{ locale.Month.name }}
         </span>
         <div class="tabBody">
           <el-row>
@@ -386,19 +386,19 @@
               v-model="month.cronEvery"
               label="1"
             >
-              {{ text.Month.every }}
+              {{ locale.Month.every }}
             </el-radio>
           </el-row>
           <el-row>
             <el-radio v-model="month.cronEvery" label="2">
-              {{ text.Month.interval[0] }}
+              {{ locale.Month.interval[0] }}
               <el-input-number
                 v-model="month.incrementIncrement"
                 size="small"
                 :min="0"
                 :max="12"
               />
-              {{ text.Month.interval[1] }}
+              {{ locale.Month.interval[1] }}
               <el-input-number
                 v-model="month.incrementStart"
                 size="small"
@@ -409,7 +409,7 @@
           </el-row>
           <el-row>
             <el-radio v-model="month.cronEvery" class="long" label="3">
-              {{ text.Month.specific }}
+              {{ locale.Month.specific }}
               <el-select v-model="month.specificSpecific" size="small" multiple>
                 <el-option
                   v-for="val in 12"
@@ -424,14 +424,14 @@
           </el-row>
           <el-row>
             <el-radio v-model="month.cronEvery" label="4">
-              {{ text.Month.cycle[0] }}
+              {{ locale.Month.cycle[0] }}
               <el-input-number
                 v-model="month.rangeStart"
                 size="small"
                 :min="1"
                 :max="Number(month.rangeEnd) - 1"
               />
-              {{ text.Month.cycle[1] }}
+              {{ locale.Month.cycle[1] }}
               <el-input-number
                 v-model="month.rangeEnd"
                 size="small"
@@ -483,10 +483,15 @@ export default {
       default: false,
       require: false,
     },
+    setText: {
+      type: Function,
+      require: false,
+    },
   },
   data() {
     return {
-      locale: this.i18n,
+      currentLocale: this.i18n,
+      textValue: '',
       additionalActions: ADDITIONAL_ACTIONS,
       actionsMap: new Map([
         [
@@ -586,7 +591,10 @@ export default {
   },
   computed: {
     text() {
-      return locales[this.locale];
+      return this.textValue;
+    },
+    locale() {
+      return locales[this.currentLocale];
     },
     minutesText: {
       get() {
@@ -938,6 +946,7 @@ export default {
     },
     value: {
       handler() {
+        if (this.value === this.cron || this.value.split(' ').length < 5) return;
         this.parseCron();
       },
     },
@@ -950,6 +959,11 @@ export default {
         }
       },
     },
+    text: {
+      handler() {
+        this.emitSetText();
+      },
+    },
   },
   mounted() {
     this.parseCron();
@@ -958,6 +972,9 @@ export default {
   methods: {
     updateInputValue(value) {
       this.$emit("input", value);
+    },
+    emitSetText() {
+      this.$emit("setText", this.text);
     },
     applyAdditionalActions(actions) {
       for (const action of actions) {
