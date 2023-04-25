@@ -483,15 +483,10 @@ export default {
       default: false,
       require: false,
     },
-    setText: {
-      type: Function,
-      require: false,
-    },
   },
   data() {
     return {
       currentLocale: this.i18n,
-      textValue: '',
       additionalActions: ADDITIONAL_ACTIONS,
       actionsMap: new Map([
         [
@@ -590,9 +585,6 @@ export default {
     };
   },
   computed: {
-    text() {
-      return this.textValue;
-    },
     locale() {
       return locales[this.currentLocale];
     },
@@ -946,7 +938,8 @@ export default {
     },
     value: {
       handler() {
-        if (this.value === this.cron || this.value.split(' ').length < 5) return;
+        if (this.value === this.cron || this.value.split(" ").length < 5)
+          return;
         this.parseCron();
       },
     },
@@ -959,11 +952,6 @@ export default {
         }
       },
     },
-    text: {
-      handler() {
-        this.emitSetText();
-      },
-    },
   },
   mounted() {
     this.parseCron();
@@ -972,9 +960,6 @@ export default {
   methods: {
     updateInputValue(value) {
       this.$emit("input", value);
-    },
-    emitSetText() {
-      this.$emit("setText", this.text);
     },
     applyAdditionalActions(actions) {
       for (const action of actions) {
