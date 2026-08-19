@@ -11,7 +11,7 @@ describe("VueCronEditor", () => {
     expect(wrapper.emitted("input")[0][0]).toBe("* * * * *");
   });
 
-  it("parses an incoming value prop and keeps it unchanged (round trip)", () => {
+  it("normalizes an incoming */N minutes expression to 0/N in the component state", () => {
     const wrapper = mountEditor({ value: "*/5 * * * *" });
     expect(wrapper.vm.cron).toBe("0/5 * * * *");
   });
