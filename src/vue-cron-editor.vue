@@ -447,8 +447,21 @@
 </template>
 <script>
 import locales from "../locales";
-
-const DEFAULT_CRON_EXPRESSION = "* * * * *";
+import {
+  DEFAULT_CRON_EXPRESSION,
+  parseCronExpression,
+  buildCronExpression,
+  formatMinutesText,
+  parseMinutesText,
+  formatHoursText,
+  parseHoursText,
+  formatDaysText,
+  parseDaysText,
+  formatWeeksText,
+  parseWeeksText,
+  formatMonthsText,
+  parseMonthsText,
+} from "./cron-fields";
 
 const ADDITIONAL_ACTIONS = {
   AssignZeroMinutes: "AssignZeroMinutes",
@@ -562,7 +575,6 @@ export default {
         rangeStart: "",
         rangeEnd: "",
         specificSpecific: [],
-        cronLastSpecificDomDay: 1,
         cronDaysBeforeEomMinus: "",
         cronDaysNearestWeekday: "",
       },
@@ -590,342 +602,52 @@ export default {
     },
     minutesText: {
       get() {
-        let minutes = "";
-        const { cronEvery } = this.minute;
-        switch (cronEvery.toString()) {
-          case "1":
-            minutes = "*";
-            break;
-          case "2":
-            minutes = `${this.minute.incrementStart}/${this.minute.incrementIncrement}`;
-            break;
-          case "3":
-            this.minute.specificSpecific.map((val) => {
-              minutes += `${val},`;
-            });
-            minutes = minutes.slice(0, -1);
-            break;
-          case "4":
-            minutes = `${this.minute.rangeStart}-${this.minute.rangeEnd}`;
-            break;
-        }
-        return minutes;
+        return formatMinutesText(this.minute);
       },
       set(value) {
-        if (value) {
-          if (value === "*" && !this.minute.cronEvery) {
-            this.minute.cronEvery = "1";
-            return;
-          }
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.minute.incrementStart = parts[0];
-            this.minute.incrementIncrement = parts[1];
-            this.minute.cronEvery = "2";
-            return;
-          }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.minute.rangeStart = parts[0];
-            this.minute.rangeEnd = parts[1];
-            this.minute.cronEvery = "4";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.minute.specificSpecific = [];
-            parts.forEach((el) => {
-              this.minute.specificSpecific.push(el);
-            });
-            this.minute.cronEvery = "3";
-            return;
-          }
-          if (value === "0" || parseInt(value, 10)) {
-            this.minute.specificSpecific = [];
-            this.minute.specificSpecific.push(value);
-            this.minute.cronEvery = "3";
-          }
-        }
+        parseMinutesText(this.minute, value);
       },
     },
     hoursText: {
       get() {
-        let hours = "";
-        const { cronEvery } = this.hour;
-        switch (cronEvery.toString()) {
-          case "1":
-            hours = "*";
-            break;
-          case "2":
-            hours = `${this.hour.incrementStart}/${this.hour.incrementIncrement}`;
-            break;
-          case "3":
-            this.hour.specificSpecific.map((val) => {
-              hours += `${val},`;
-            });
-            hours = hours.slice(0, -1);
-            break;
-          case "4":
-            hours = `${this.hour.rangeStart}-${this.hour.rangeEnd}`;
-            break;
-        }
-        return hours;
+        return formatHoursText(this.hour);
       },
       set(value) {
-        if (value) {
-          if (value === "*") return;
-
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.hour.incrementStart = parts[0];
-            this.hour.incrementIncrement = parts[1];
-            this.hour.cronEvery = "2";
-            return;
-          }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.hour.rangeStart = parts[0];
-            this.hour.rangeEnd = parts[1];
-            this.hour.cronEvery = "4";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.hour.specificSpecific = [];
-            parts.forEach((el) => {
-              this.hour.specificSpecific.push(el);
-            });
-            this.hour.cronEvery = "3";
-            return;
-          }
-          if (value === "0" || parseInt(value, 10)) {
-            this.hour.specificSpecific = [];
-            this.hour.specificSpecific.push(value);
-            this.hour.cronEvery = "3";
-          }
-        }
+        parseHoursText(this.hour, value);
       },
     },
     daysText: {
       get() {
-        let days = "";
-        const { cronEvery } = this.day;
-        switch (cronEvery.toString()) {
-          case "1":
-            days = "*";
-            break;
-          case "2":
-          case "4":
-          case "10":
-            days = "*";
-            break;
-          case "3":
-            days = `${this.day.incrementStart}/${this.day.incrementIncrement}`;
-            break;
-          case "5":
-            this.day.specificSpecific.map((val) => {
-              days += `${val},`;
-            });
-            days = days.slice(0, -1);
-            break;
-          case "6":
-            days = "L";
-            break;
-          case "7":
-            days = "LW";
-            break;
-          case "8":
-            days = `L-${this.day.cronDaysBeforeEomMinus}`;
-            break;
-          case "9":
-            days = `${this.day.cronDaysNearestWeekday}W`;
-            break;
-        }
-        return days;
+        return formatDaysText(this.day);
       },
       set(value) {
-        if (value) {
-          if (value === "*") return;
-
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.day.incrementStart = parts[0];
-            this.day.incrementIncrement = parts[1];
-            this.day.cronEvery = "3";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.day.specificSpecific = [];
-            parts.forEach((el) => {
-              this.day.specificSpecific.push(el);
-            });
-            this.day.cronEvery = "5";
-            return;
-          }
-          if (value === "L") {
-            this.day.cronEvery = "6";
-            return;
-          }
-          if (value === "LW") {
-            this.day.cronEvery = "7";
-            return;
-          }
-          let match = /L-(\d+)/g.exec(value);
-          if (match) {
-            this.day.cronEvery = "8";
-            this.day.cronDaysBeforeEomMinus = match[1];
-            return;
-          }
-          match = /(\d+)W/g.exec(value);
-          if (match) {
-            this.day.cronEvery = "9";
-            this.day.cronLastSpecificDomDay = match[1];
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.day.specificSpecific = [];
-            this.day.specificSpecific.push(value);
-            this.day.cronEvery = "5";
-            return;
-          }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.day.rangeStart = parts[0];
-            this.day.rangeEnd = parts[1];
-            this.day.cronEvery = "4";
-          }
-        }
+        parseDaysText(this.day, value);
       },
     },
     weeksText: {
       get() {
-        let weeks = "";
-        const { cronEvery } = this.day;
-        switch (cronEvery.toString()) {
-          case "1":
-          case "3":
-          case "5":
-            weeks = "*";
-            break;
-          case "2":
-            weeks = `${this.week.incrementStart}/${this.week.incrementIncrement}`;
-            break;
-          case "4":
-            this.week.specificSpecific.map((val) => {
-              weeks += `${val},`;
-            });
-            weeks = weeks.slice(0, -1);
-            break;
-          case "6":
-          case "7":
-          case "8":
-          case "9":
-            weeks = "*";
-            break;
-          case "10":
-            weeks = `${this.week.cronNthDayDay}#${this.week.cronNthDayNth}`;
-            break;
-        }
-        return weeks;
+        return formatWeeksText(this.day, this.week);
       },
       set(value) {
-        if (value) {
-          if (value === "*") return;
-
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.week.incrementStart = parseInt(parts[0]);
-            this.week.incrementIncrement = parts[1];
-            this.day.cronEvery = "2";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.week.specificSpecific = [];
-            parts.forEach((el) => {
-              this.week.specificSpecific.push(el);
-            });
-            this.day.cronEvery = "4";
-            return;
-          }
-          if (value.includes("#")) {
-            const parts = value.split("#");
-            this.week.cronNthDayDay = parseInt(parts[0]);
-            this.week.cronNthDayNth = parseInt(parts[1]);
-            this.day.cronEvery = "10";
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.week.specificSpecific = [];
-            this.week.specificSpecific.push(value);
-            this.day.cronEvery = "4";
-          }
-        }
+        parseWeeksText(this.day, this.week, value);
       },
     },
     monthsText: {
       get() {
-        let months = "";
-        const { cronEvery } = this.month;
-        switch (cronEvery.toString()) {
-          case "1":
-            months = "*";
-            break;
-          case "2":
-            months = `${this.month.incrementStart}/${this.month.incrementIncrement}`;
-            break;
-          case "3":
-            this.month.specificSpecific.map((val) => {
-              months += `${val},`;
-            });
-            months = months.slice(0, -1);
-            break;
-          case "4":
-            months = `${this.month.rangeStart}-${this.month.rangeEnd}`;
-            break;
-        }
-        return months;
+        return formatMonthsText(this.month);
       },
       set(value) {
-        if (value) {
-          if (value === "*") return;
-
-          if (value.includes("/")) {
-            const parts = value.split("/");
-            this.month.incrementStart = parts[0];
-            this.month.incrementIncrement = parts[1];
-            this.month.cronEvery = "2";
-            return;
-          }
-          if (value.includes("-")) {
-            const parts = value.split("-");
-            this.month.rangeStart = parts[0];
-            this.month.rangeEnd = parts[1];
-            this.month.cronEvery = "4";
-            return;
-          }
-          if (value.includes(",")) {
-            const parts = value.split(",");
-            this.month.specificSpecific = [];
-            parts.forEach((el) => {
-              this.month.specificSpecific.push(el);
-            });
-            this.month.cronEvery = "3";
-            return;
-          }
-          if (parseInt(value, 10)) {
-            this.month.specificSpecific = [];
-            this.month.specificSpecific.push(value);
-            this.month.cronEvery = "3";
-          }
-        }
+        parseMonthsText(this.month, value);
       },
     },
     cron() {
-      return `${this.minutesText || "*"} ${this.hoursText || "*"} ${
-        this.daysText || "*"
-      } ${this.monthsText || "*"} ${this.weeksText || "*"}`;
+      return buildCronExpression({
+        minutesText: this.minutesText,
+        hoursText: this.hoursText,
+        daysText: this.daysText,
+        monthsText: this.monthsText,
+        weeksText: this.weeksText,
+      });
     },
   },
   watch: {
@@ -968,11 +690,7 @@ export default {
       return this.cron;
     },
     parseCron() {
-      const cronValue = !this.value
-        ? DEFAULT_CRON_EXPRESSION.split(" ")
-        : this.value.split(" ");
-
-      this.setCronValue(cronValue);
+      this.setCronValue(parseCronExpression(this.value));
       this.setEvery();
     },
     setCronValue(cronValue) {
@@ -986,7 +704,8 @@ export default {
       this.weeksText = weeksText;
     },
     setDefaultCronValue() {
-      this.setCronValue(DEFAULT_CRON_EXPRESSION);
+      // setCronValue expects an array of the 5 cron fields, not a raw string.
+      this.setCronValue(DEFAULT_CRON_EXPRESSION.split(" "));
       this.applyAdditionalActions([this.additionalActions.SelectEveryMinute]);
     },
     setEvery() {
