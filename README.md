@@ -94,6 +94,8 @@ npm install
 npm run serve
 ```
 
+> **Node 17+ (OpenSSL 3):** if `npm run serve` fails with `ERR_OSSL_EVP_UNSUPPORTED`, use `npm run serve:openssl-legacy` instead — Webpack 4 (bundled with `@vue/cli-service`) needs the legacy OpenSSL provider on Node 17 and newer.
+
 ### Build
 ```
 npm run build
