@@ -14,12 +14,9 @@ const WEEKDAY_TOKEN = /^(\d{1,2}|SUN|MON|TUE|WED|THU|FRI|SAT)$/i;
  * Splits a cron string into its 5 fields, falling back to the default
  * expression when the value is empty or incomplete.
  */
-export function parseCronExpression(value) {
+export function parseCronExpression(value, fallback = DEFAULT_CRON_EXPRESSION.split(" ")) {
   const parts = (value || "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 5) {
-    return DEFAULT_CRON_EXPRESSION.split(" ");
-  }
-  return parts.slice(0, 5);
+  return parts.length === 5 ? parts : fallback;
 }
 
 export function buildCronExpression({
@@ -38,12 +35,35 @@ export function buildCronExpression({
 // Minutes / Hours (self-contained fields, no shared state with other tabs)
 // ---------------------------------------------------------------------------
 
-function formatIncrementField(state) {
+function formatStep(state, first, last) {
+  const start = Number(state.incrementStart);
+  const range = start === first ? "*" : `${start}-${last}`;
+  return `${range}/${state.incrementIncrement}`;
+}
+
+function parseStep(state, value, first, last) {
+  const match = /^(\*|\d+)(?:-(\d+))?\/(\d+)$/.exec(value);
+  if (!match) return false;
+
+  const [, start, end, step] = match;
+  const numericStart = start === "*" ? first : Number(start);
+  if (
+    (end && (start === "*" || Number(end) !== last)) ||
+    numericStart < first || numericStart > last ||
+    Number(step) < 1 || Number(step) > last
+  ) return false;
+
+  state.incrementStart = String(numericStart);
+  state.incrementIncrement = step;
+  return true;
+}
+
+function formatIncrementField(state, first, last) {
   switch (String(state.cronEvery)) {
     case "1":
       return "*";
     case "2":
-      return `${state.incrementStart}/${state.incrementIncrement}`;
+      return formatStep(state, first, last);
     case "3":
       return state.specificSpecific.join(",");
     case "4":
@@ -53,60 +73,55 @@ function formatIncrementField(state) {
   }
 }
 
-function parseIncrementField(state, value, wildcardStart) {
+function parseIncrementField(state, value, first, last) {
   if (!value) return;
   if (value === "*") {
     // A bare "*" unambiguously means "every", regardless of prior state.
     state.cronEvery = "1";
     return;
   }
-  if (value.includes("/")) {
-    const [start, increment] = value.split("/");
-    state.incrementStart = start === "*" ? wildcardStart : start;
-    state.incrementIncrement = increment;
+  if (parseStep(state, value, first, last)) {
     state.cronEvery = "2";
     return;
   }
-  if (value.includes("-")) {
-    const [start, end] = value.split("-");
+  const range = /^(\d+)-(\d+)$/.exec(value);
+  if (range && Number(range[1]) >= first && Number(range[2]) <= last &&
+      Number(range[1]) < Number(range[2])) {
+    const [, start, end] = range;
     state.rangeStart = start;
     state.rangeEnd = end;
     state.cronEvery = "4";
     return;
   }
-  if (value.includes(",")) {
-    state.specificSpecific = value.split(",");
-    state.cronEvery = "3";
-    return;
-  }
-  if (NUMBER_ONLY.test(value)) {
-    state.specificSpecific = [value];
+  const values = value.split(",");
+  if (values.every(token => NUMBER_ONLY.test(token) && Number(token) >= first && Number(token) <= last)) {
+    state.specificSpecific = values;
     state.cronEvery = "3";
   }
 }
 
 export function formatMinutesText(minute) {
-  return formatIncrementField(minute);
+  return formatIncrementField(minute, 0, 59);
 }
 
 export function parseMinutesText(minute, value) {
-  parseIncrementField(minute, value, "0");
+  parseIncrementField(minute, value, 0, 59);
 }
 
 export function formatHoursText(hour) {
-  return formatIncrementField(hour);
+  return formatIncrementField(hour, 0, 23);
 }
 
 export function parseHoursText(hour, value) {
-  parseIncrementField(hour, value, "0");
+  parseIncrementField(hour, value, 0, 23);
 }
 
 export function formatMonthsText(month) {
-  return formatIncrementField(month);
+  return formatIncrementField(month, 1, 12);
 }
 
 export function parseMonthsText(month, value) {
-  parseIncrementField(month, value, "1");
+  parseIncrementField(month, value, 1, 12);
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +137,7 @@ export function formatDaysText(day) {
     case "10":
       return "*";
     case "3":
-      return `${day.incrementStart}/${day.incrementIncrement}`;
+      return formatStep(day, 1, 31);
     case "5":
       return day.specificSpecific.join(",");
     case "6":
@@ -141,15 +156,13 @@ export function formatDaysText(day) {
 export function parseDaysText(day, value) {
   if (!value || value === "*") return;
 
-  if (value.includes("/")) {
-    const [start, increment] = value.split("/");
-    day.incrementStart = start === "*" ? "1" : start;
-    day.incrementIncrement = increment;
+  if (parseStep(day, value, 1, 31)) {
     day.cronEvery = "3";
     return;
   }
-  if (value.includes(",")) {
-    day.specificSpecific = value.split(",");
+  const values = value.split(",");
+  if (values.every(token => NUMBER_ONLY.test(token) && Number(token) >= 1 && Number(token) <= 31)) {
+    day.specificSpecific = values;
     day.cronEvery = "5";
     return;
   }
@@ -161,25 +174,18 @@ export function parseDaysText(day, value) {
     day.cronEvery = "7";
     return;
   }
-  let match = /^L-(\d+)$/.exec(value);
+  let match = /^L-([1-9]|[12]\d|3[01])$/.exec(value);
   if (match) {
     day.cronEvery = "8";
     day.cronDaysBeforeEomMinus = match[1];
     return;
   }
-  match = /^(\d+)W$/.exec(value);
+  match = /^([1-9]|[12]\d|3[01])W$/.exec(value);
   if (match) {
     day.cronEvery = "9";
     day.cronDaysNearestWeekday = match[1];
     return;
   }
-  if (NUMBER_ONLY.test(value)) {
-    day.specificSpecific = [value];
-    day.cronEvery = "5";
-  }
-  // Plain day-of-month ranges (e.g. "10-20") have no corresponding radio in
-  // the UI (option "4" is the day-of-week interval), so they are left
-  // unhandled rather than silently mapped to the wrong state.
 }
 
 export function formatWeeksText(day, week) {
@@ -193,7 +199,7 @@ export function formatWeeksText(day, week) {
     case "9":
       return "*";
     case "2":
-      return `${week.incrementStart}/${week.incrementIncrement}`;
+      return formatStep(week, 0, 7);
     case "4":
       return week.specificSpecific.join(",");
     case "10":
@@ -206,29 +212,22 @@ export function formatWeeksText(day, week) {
 export function parseWeeksText(day, week, value) {
   if (!value || value === "*") return;
 
-  if (value.includes("/")) {
-    const [start, increment] = value.split("/");
-    week.incrementStart = start === "*" ? 0 : parseInt(start, 10);
-    week.incrementIncrement = increment;
+  if (parseStep(week, value, 0, 7) && Number(week.incrementStart) < 7) {
+    week.incrementStart = Number(week.incrementStart);
     day.cronEvery = "2";
     return;
   }
-  if (value.includes(",")) {
-    week.specificSpecific = value.split(",");
+  const values = value.split(",");
+  if (values.every(token => WEEKDAY_TOKEN.test(token))) {
+    week.specificSpecific = values;
     day.cronEvery = "4";
     return;
   }
-  if (value.includes("#")) {
-    const [weekday, nth] = value.split("#");
-    week.cronNthDayDay = parseInt(weekday, 10);
-    week.cronNthDayNth = parseInt(nth, 10);
+  const nthWeekday = /^([0-6])#([1-5])$/.exec(value);
+  if (nthWeekday) {
+    week.cronNthDayDay = Number(nthWeekday[1]);
+    week.cronNthDayNth = Number(nthWeekday[2]);
     day.cronEvery = "10";
     return;
   }
-  if (WEEKDAY_TOKEN.test(value)) {
-    week.specificSpecific = [value];
-    day.cronEvery = "4";
-  }
-  // Day-of-week ranges (e.g. "MON-FRI") have no corresponding radio in the
-  // UI either, so they are intentionally left unhandled.
 }

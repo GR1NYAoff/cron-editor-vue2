@@ -7,7 +7,9 @@
 
 ## Description
 
-The component library is built with Vue 2 allowing for easier editing of cron expressions that are built using a basic cron syntax (classic GNU version, 5 digits).
+This Vue 2 component edits five-field crontab expressions. Fields the controls cannot represent are displayed as entered and preserved when you edit another tab. Selecting a mode in that tab replaces its displayed value. The Day tab treats day-of-month and day-of-week as one group.
+
+For schedulers that support `L`, `LW`, `L-n`, `nW`, and `day#nth`, pass `:extended-syntax="true"` to show those controls. They are hidden by default for classic crontab compatibility. The editor preserves custom expressions as supplied, so validate them against the target scheduler before saving.
 
 ## Installation
 

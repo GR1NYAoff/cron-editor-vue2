@@ -106,7 +106,7 @@ describe("minutes field", () => {
     expect(minute.cronEvery).toBe("2");
     expect(minute.incrementStart).toBe("3");
     expect(minute.incrementIncrement).toBe("5");
-    expect(formatMinutesText(minute)).toBe("3/5");
+    expect(formatMinutesText(minute)).toBe("3-59/5");
   });
 
   it("treats a leading '*' increment start as 0 (corner case: */5)", () => {
@@ -309,7 +309,9 @@ describe("day of week field", () => {
 describe("round trips of full cron expressions", () => {
   const cases = [
     "* * * * *",
-    "0/5 * * * *",
+    "*/5 * * * *",
+    "3-59/5 2-23/3 2-31/4 2-12/2 *",
+    "0 0 * * 2-7/2",
     "0 0 * * *",
     "30 8-17 * * *",
     "0 0 1 * *",

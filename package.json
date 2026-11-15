@@ -1,6 +1,6 @@
 {
   "name": "cron-editor-vue2",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "repository": "https://github.com/GR1NYAoff/cron-editor-vue2",
   "author": "Gregory Tsyapa",
   "license": "MIT",
@@ -23,6 +23,7 @@
   "unpkg": "dist/vue-cron-editor.min.js",
   "files": [
     "dist/*",
+    "locales/*.js",
     "src/**/*.vue",
     "src/**/*.js"
   ],
