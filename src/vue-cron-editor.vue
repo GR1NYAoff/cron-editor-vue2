@@ -15,6 +15,7 @@
           {{ locale.Minutes.name }}
         </span>
         <div class="tabBody">
+          <code v-if="minute.cronEvery === 'custom'">{{ minute.raw }}</code>
           <el-row>
             <el-radio
               @change="
@@ -97,6 +98,7 @@
           {{ locale.Hours.name }}
         </span>
         <div class="tabBody">
+          <code v-if="hour.cronEvery === 'custom'">{{ hour.raw }}</code>
           <el-row>
             <el-radio
               @change="
@@ -175,6 +177,7 @@
           {{ locale.Day.name }}
         </span>
         <div class="tabBody">
+          <code v-if="day.cronEvery === 'custom'">{{ day.raw }} {{ week.raw }}</code>
           <el-row>
             <el-radio
               @change="
@@ -262,7 +265,7 @@
               </el-select>
             </el-radio>
           </el-row>
-          <el-row>
+          <el-row v-if="extendedSyntax">
             <el-radio
               @change="
                 () =>
@@ -277,7 +280,7 @@
               {{ locale.Day.lastDay }}
             </el-radio>
           </el-row>
-          <el-row>
+          <el-row v-if="extendedSyntax">
             <el-radio
               @change="
                 () =>
@@ -292,7 +295,7 @@
               {{ locale.Day.lastWeekday }}
             </el-radio>
           </el-row>
-          <el-row>
+          <el-row v-if="extendedSyntax">
             <el-radio
               @change="
                 () =>
@@ -313,7 +316,7 @@
               {{ locale.Day.beforeEndMonth[0] }}
             </el-radio>
           </el-row>
-          <el-row>
+          <el-row v-if="extendedSyntax">
             <el-radio
               @change="
                 () =>
@@ -335,7 +338,7 @@
               {{ locale.Day.nearestWeekday[1] }}
             </el-radio>
           </el-row>
-          <el-row>
+          <el-row v-if="extendedSyntax">
             <el-radio
               @change="
                 () =>
@@ -373,6 +376,7 @@
           {{ locale.Month.name }}
         </span>
         <div class="tabBody">
+          <code v-if="month.cronEvery === 'custom'">{{ month.raw }}</code>
           <el-row>
             <el-radio
               @change="
@@ -486,6 +490,10 @@ export default {
       default: "en",
       require: false,
     },
+    extendedSyntax: {
+      type: Boolean,
+      default: false,
+    },
     localesButton: {
       type: Boolean,
       default: false,
@@ -520,7 +528,7 @@ export default {
           ADDITIONAL_ACTIONS.AssignFirstDayOfMonth,
           () => {
             const daysText = this.cron.split(" ")[2];
-            if (daysText === "*") this.daysText = "1";
+            if (daysText === "*" && this.weeksText === "*") this.daysText = "1";
           },
         ],
         [
@@ -553,6 +561,7 @@ export default {
         ],
       ]),
       minute: {
+        raw: "*",
         cronEvery: "",
         incrementStart: "3",
         incrementIncrement: "5",
@@ -561,6 +570,7 @@ export default {
         specificSpecific: [],
       },
       hour: {
+        raw: "*",
         cronEvery: "",
         incrementStart: "3",
         incrementIncrement: "5",
@@ -569,6 +579,7 @@ export default {
         specificSpecific: [],
       },
       day: {
+        raw: "*",
         cronEvery: "",
         incrementStart: "1",
         incrementIncrement: "1",
@@ -579,6 +590,7 @@ export default {
         cronDaysNearestWeekday: "",
       },
       week: {
+        raw: "*",
         cronEvery: "",
         incrementStart: 0,
         incrementIncrement: "1",
@@ -587,6 +599,7 @@ export default {
         cronNthDayNth: "1",
       },
       month: {
+        raw: "*",
         cronEvery: "",
         incrementStart: "3",
         incrementIncrement: "5",
@@ -598,10 +611,11 @@ export default {
   },
   computed: {
     locale() {
-      return locales[this.currentLocale];
+      return this.currentLocale === "cn" ? locales.cn : locales.en;
     },
     minutesText: {
       get() {
+        if (this.minute.cronEvery === "custom") return this.minute.raw;
         return formatMinutesText(this.minute);
       },
       set(value) {
@@ -610,6 +624,7 @@ export default {
     },
     hoursText: {
       get() {
+        if (this.hour.cronEvery === "custom") return this.hour.raw;
         return formatHoursText(this.hour);
       },
       set(value) {
@@ -618,6 +633,7 @@ export default {
     },
     daysText: {
       get() {
+        if (this.day.cronEvery === "custom") return this.day.raw;
         return formatDaysText(this.day);
       },
       set(value) {
@@ -626,6 +642,7 @@ export default {
     },
     weeksText: {
       get() {
+        if (this.day.cronEvery === "custom") return this.week.raw;
         return formatWeeksText(this.day, this.week);
       },
       set(value) {
@@ -634,6 +651,7 @@ export default {
     },
     monthsText: {
       get() {
+        if (this.month.cronEvery === "custom") return this.month.raw;
         return formatMonthsText(this.month);
       },
       set(value) {
@@ -651,17 +669,21 @@ export default {
     },
   },
   watch: {
-    cron: {
-      handler() {
-        this.updateInputValue(this.cron);
-      },
+    i18n(value) {
+      this.currentLocale = value;
+    },
+    extendedSyntax() {
+      this.setCronValue(this.cron.split(" "));
     },
     value: {
+      immediate: true,
       handler() {
-        if (this.value === this.cron || this.value.split(" ").length < 5)
-          return;
         this.parseCron();
       },
+    },
+    cron(value) {
+      const incoming = parseCronExpression(this.value, null);
+      if (!incoming || value !== incoming.join(" ")) this.updateInputValue(value);
     },
     visible: {
       handler(val) {
@@ -674,8 +696,7 @@ export default {
     },
   },
   mounted() {
-    this.parseCron();
-    this.updateInputValue(this.cron);
+    if (!this.value) this.updateInputValue(this.cron);
   },
   methods: {
     updateInputValue(value) {
@@ -690,34 +711,45 @@ export default {
       return this.cron;
     },
     parseCron() {
-      this.setCronValue(parseCronExpression(this.value));
-      this.setEvery();
+      const fields = parseCronExpression(this.value, null);
+      if (fields) {
+        if (fields.join(" ") !== this.cron || !this.minute.cronEvery) {
+          this.setCronValue(fields);
+        }
+      } else if (!this.minute.cronEvery) {
+        this.minute.cronEvery = "1";
+      }
     },
-    setCronValue(cronValue) {
-      const [minutesText, hoursText, daysText, monthsText, weeksText] =
-        cronValue;
+    setCronValue([minutes, hours, days, months, weeks]) {
+      this.setField(this.minute, minutes, parseMinutesText, formatMinutesText);
+      this.setField(this.hour, hours, parseHoursText, formatHoursText);
+      this.setField(this.month, months, parseMonthsText, formatMonthsText);
 
-      this.minutesText = minutesText;
-      this.hoursText = hoursText;
-      this.daysText = daysText;
-      this.monthsText = monthsText;
-      this.weeksText = weeksText;
+      this.day.cronEvery = "1";
+      parseDaysText(this.day, days);
+      parseWeeksText(this.day, this.week, weeks);
+      const extended = Number(this.day.cronEvery) >= 6;
+      if (
+        (extended && !this.extendedSyntax) ||
+        formatDaysText(this.day) !== days ||
+        formatWeeksText(this.day, this.week) !== weeks
+      ) {
+        this.day.raw = days;
+        this.week.raw = weeks;
+        this.day.cronEvery = "custom";
+      }
+    },
+    setField(state, value, parse, format) {
+      state.cronEvery = "";
+      parse(state, value);
+      if (format(state) !== value) {
+        state.raw = value;
+        state.cronEvery = "custom";
+      }
     },
     setDefaultCronValue() {
-      // setCronValue expects an array of the 5 cron fields, not a raw string.
       this.setCronValue(DEFAULT_CRON_EXPRESSION.split(" "));
       this.applyAdditionalActions([this.additionalActions.SelectEveryMinute]);
-    },
-    setEvery() {
-      if (this.minute.cronEvery === "" || this.minute.cronEvery === "1") {
-        this.minute.cronEvery = "1";
-      } else if (this.hour.cronEvery === "" || this.hour.cronEvery === "1") {
-        this.hour.cronEvery = "1";
-      } else if (this.day.cronEvery === "" || this.day.cronEvery === "1") {
-        this.day.cronEvery = "1";
-      } else if (this.month.cronEvery === "" || this.month.cronEvery === "1") {
-        this.month.cronEvery = "1";
-      }
     },
   },
 };
